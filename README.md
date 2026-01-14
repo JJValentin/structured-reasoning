@@ -31,7 +31,17 @@ Claude: [Decision Router: Type 2 (reversible) + multiple viable paths → Consen
 
 ## Installation
 
-### As a Claude Code Skill
+### Quick Install (Recommended)
+
+Copy and paste this prompt into Claude Code:
+
+```
+Install the structured-reasoning skill from GitHub: https://github.com/JJValentin/structured-reasoning
+```
+
+Claude Code will clone the repository into your skills folder and make it available immediately.
+
+### Manual Installation
 
 1. Copy the entire directory to your Claude Code skills folder:
    - Windows: `C:\Users\<username>\.claude\skills\structured-reasoning\`
