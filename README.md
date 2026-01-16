@@ -20,13 +20,13 @@ Simply describe your problem to Claude, and the Decision Router will automatical
 ```
 User: Should I take this client project?
 
-Claude: [Decision Router: Type 1 (irreversible) → Deep Mode with EA reminder]
+Claude: [Decision Router: Type 1 (irreversible) -> Deep Mode with EA reminder]
 ```
 
 ```
 User: What content should I create this week?
 
-Claude: [Decision Router: Type 2 (reversible) + multiple viable paths → Consensus Mode]
+Claude: [Decision Router: Type 2 (reversible) + multiple viable paths -> Consensus Mode]
 ```
 
 ## Installation
@@ -65,7 +65,7 @@ The router first categorizes decisions:
 | Taking clients | Content topics |
 | Signing contracts | Offer tweaks |
 | Major partnerships | Task order |
-| **→ Always Deep Mode** | **→ Route by characteristics** |
+| **-> Always Deep Mode** | **-> Route by characteristics** |
 
 ### Reasoning Modes
 
@@ -98,6 +98,7 @@ Build a network of interconnected thought atoms with explicit dependencies:
 - **Reasoning (R)**: Logical deductions
 - **Hypothesis (H)**: Proposed solutions
 - **Verification (V)**: Tests and validates
+- **Bias Audit (BA)**: Checks for reasoning errors
 - **Conclusion (C)**: Final recommendations
 
 **Use when:**
@@ -129,6 +130,24 @@ Start with Light Mode for efficiency, automatically escalate to Deep Mode when c
 - Contradictory information found
 - User requests deeper analysis
 
+### Persistence Layer (v2.2+)
+
+Store and query reasoning artifacts across sessions:
+
+- **Decisions**: Complete reasoning chains with conclusions
+- **Premises**: Established facts that can be reused
+- **Context**: Project-level information that persists
+- **Learning**: Outcome tracking with confidence propagation
+
+### Learning Loop (v2.3+)
+
+Improve from experience with SAFLA integration:
+
+- **Outcome Tracking**: Record success/partial/failure for decisions
+- **Confidence Propagation**: Update linked memories based on outcomes
+- **Memory Evolution**: Living memories that update with new context
+- **Hub Detection**: Identify central knowledge nodes
+
 ## Documentation
 
 - **[SKILL.md](SKILL.md)**: Complete skill specification
@@ -136,6 +155,8 @@ Start with Light Mode for efficiency, automatically escalate to Deep Mode when c
 - **[references/deep-mode.md](references/deep-mode.md)**: Atom mechanics and patterns
 - **[references/consensus-mode.md](references/consensus-mode.md)**: Parallel advisor patterns
 - **[references/mode-selection-guide.md](references/mode-selection-guide.md)**: Decision framework
+- **[references/persistence.md](references/persistence.md)**: Knowledge base and learning
+- **[references/forgetful-backend.md](references/forgetful-backend.md)**: Optional semantic search upgrade
 - **[references/worked-examples.md](references/worked-examples.md)**: Complete walkthroughs
 
 ## Examples
@@ -150,6 +171,7 @@ Problem: Design a caching layer for a high-traffic e-commerce API
 [R1] 80% read operations would benefit from caching (confidence: 0.88)
 [H1] AWS ElastiCache will meet requirements (confidence: 0.70)
 [V1] Testing shows all criteria pass (confidence: 0.88)
+[BA1] Bias audit: PASS (2 hypotheses, disconfirming evidence sought)
 [C1] Deploy ElastiCache cluster (confidence: 0.88)
 ```
 
@@ -162,7 +184,7 @@ Enumerator: Tutorial video (0.72)
 Pattern Matcher: Twitter thread (0.78) - proven format
 First Principles: Blog + Loom walkthrough (0.68)
 Contrarian: Skip content, direct outreach (0.55)
-Pragmatist: Repurpose existing recording (0.83) ← WINNER
+Pragmatist: Repurpose existing recording (0.83) <- WINNER
 
 Recommendation: Repurpose recording into thread + carousel
 ```
@@ -190,13 +212,21 @@ Control sessions with inline commands:
 - `/switch <mode>` - Force mode change
 - `/escalate` - Trigger hybrid escalation
 - `/ice` - Run ICE scoring on options
+- `/sr-save` - Save reasoning to knowledge base
+- `/sr-query` - Search past decisions
+- `/sr-outcome <id> <result>` - Record decision outcome
+- `/sr-learn` - Batch update confidences
+- `/sr-hubs` - Show hub memories
 
 ## Version
 
-**v2.0.0**
+**v2.3.0**
 
 ### Changelog
 
+- **v2.3.0**: SAFLA Learning Loop, A-MEM Memory Evolution, Keyword Auto-Linking, Hub Detection, Usage-Weighted Staleness, Optional Forgetful Backend
+- **v2.2.0**: Persistence Layer, Competing Hypotheses, Bias Audit, Premise Staleness
+- **v2.1.0**: Optimized SKILL.md, Extension Points, Enhanced description
 - **v2.0.0**: Decision Router, Direct Mode, Consensus Mode, ICE Integration, EA Integration
 - **v1.0.0**: Initial release with Light, Deep, and Hybrid modes
 
@@ -208,6 +238,9 @@ Based on research and frameworks from:
 - Atom of Thoughts for Markov LLM Test-Time Scaling (Teng et al., 2025)
 - TerminaI Cognitive Architecture (Prof-Harita, 2025)
 - Joshua's Type 1/Type 2 Decision Framework
+- Quint Code First Principles Framework (m0n0x41d)
+- SAFLA Learning Loop (ruvnet/SAFLA)
+- A-MEM Agentic Memory (agiresearch/A-mem, NeurIPS 2025)
 
 ## License
 

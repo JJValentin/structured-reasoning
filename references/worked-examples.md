@@ -281,13 +281,13 @@ Progress: [######____] 60%
 Multiple viable root causes identified. Evidence is mixed.
 Cannot differentiate without rigorous hypothesis testing.
 
-→ Escalating to Deep Mode for verification
+-> Escalating to Deep Mode for verification
 ```
 
 ### Escalation to Deep Mode
 
 ```markdown
-## ESCALATION: Light → Deep Mode
+## ESCALATION: Light -> Deep Mode
 
 **Trigger**: Multiple viable root causes with overlapping evidence
 **Preserving**: Problem definition and research findings
@@ -348,7 +348,7 @@ Testing H1 (Connection pool exhaustion):
 Conclusion: H1 verified. Connection pool was reduced from 50 to 20
 in recent deployment (config file change, likely unintentional).
 
-Effect: H1 confidence 0.60 → 0.92
+Effect: H1 confidence 0.60 -> 0.92
 
 ## [V2] VERIFICATION (confidence: 0.70)
 Testing H2 (Payment service degraded):
@@ -361,7 +361,7 @@ Testing H2 (Payment service degraded):
 
 Conclusion: H2 rejected. Payment service is healthy.
 
-Effect: H2 confidence 0.55 → 0.20 (rejected)
+Effect: H2 confidence 0.55 -> 0.20 (rejected)
 
 ## [V3] VERIFICATION (confidence: 0.65)
 Testing H3 (Cron job contention):
@@ -373,7 +373,7 @@ Testing H3 (Cron job contention):
 
 Conclusion: H3 is secondary factor at best, not root cause.
 
-Effect: H3 confidence 0.50 → 0.35
+Effect: H3 confidence 0.50 -> 0.35
 ```
 
 ### Conclusion
@@ -388,14 +388,8 @@ Root cause: Database connection pool misconfiguration in recent deployment.
 3. Add config validation to CI/CD pipeline
 
 **Evidence chain**:
-P1 (deployment timing) → H1 (pool exhaustion) → V1 (verified)
-Pool was reduced from 50→20, causing exhaustion at 35+ concurrent requests.
-
-**Implementation**:
-```yaml
-# Fix in database.yml
-pool: 50  # Was incorrectly changed to 20
-```
+P1 (deployment timing) -> H1 (pool exhaustion) -> V1 (verified)
+Pool was reduced from 50->20, causing exhaustion at 35+ concurrent requests.
 
 **Verification of fix**:
 - Deploy config change: 5 minutes
@@ -492,7 +486,7 @@ Best option: Metabase Cloud at $500/month
 - $500/month << $2k budget
 - SOC2 compliant
 
-Effect: H1 confidence 0.65 → 0.88
+Effect: H1 confidence 0.65 -> 0.88
 
 ## [V2] VERIFICATION (confidence: 0.60)
 Testing H2 (Build with self-hosted):
@@ -507,7 +501,7 @@ Testing H2 (Build with self-hosted):
 
 Build option has significant risks and hidden costs.
 
-Effect: H2 confidence 0.55 → 0.35
+Effect: H2 confidence 0.55 -> 0.35
 ```
 
 ```markdown
@@ -522,7 +516,7 @@ Effect: H2 confidence 0.55 → 0.35
 5. Frees engineering capacity for core product (P2)
 
 **5-year TCO comparison**:
-- Metabase Cloud: $500 × 60 = $30,000
+- Metabase Cloud: $500 x 60 = $30,000
 - Build: $90k build + $10k/yr maintenance = $140,000
 
 **Decision confidence**: 0.88
@@ -648,7 +642,7 @@ Progress: [######____] 60%
 | **Total** | **$13-21k** | Option A fits, B/C tight |
 
 **Assumptions Challenged**:
-- "Need WiFi for work sessions" → Can we go WiFi-free for bonding focus?
+- "Need WiFi for work sessions" -> Can we go WiFi-free for bonding focus?
 
 ---
 Next: Stage 4 (Synthesis)

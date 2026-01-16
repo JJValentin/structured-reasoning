@@ -58,12 +58,8 @@ How to choose between Direct, Light, Consensus, Deep, and Hybrid modes using the
 | Big purchases | Tool choices |
 | Relationship commitments | Pricing experiments |
 | Public positioning | Outreach approaches |
-| **→ Always Deep Mode** | **→ Route by characteristics** |
-| **→ Include EA reminder** | **→ Bias toward motion** |
-
----
-
-## Quick Decision Flowchart (Legacy - Within Type 2)
+| **-> Always Deep Mode** | **-> Route by characteristics** |
+| **-> Include EA reminder** | **-> Bias toward motion** |
 
 ---
 
@@ -150,7 +146,7 @@ Score each characteristic, then sum for recommendation.
 ### Pattern 1: Explore Then Commit
 
 ```
-Light Mode: [Problem] → [Research] → [Analysis]
+Light Mode: [Problem] -> [Research] -> [Analysis]
                                         |
                           Complexity detected
                                         |
@@ -166,7 +162,7 @@ Deep Mode:              [Convert to atoms]
 ### Pattern 2: Verify Critical Assumption
 
 ```
-Light Mode: [Problem] → [Research] → [Analysis] → [Synthesis]
+Light Mode: [Problem] -> [Research] -> [Analysis] -> [Synthesis]
                             |
                Critical assumption identified
                             |
@@ -176,7 +172,7 @@ Deep Mode:    [Create hypothesis from assumption]
               [Return to Light with result]
                             |
                             v
-Light Mode:                        → [Conclusion]
+Light Mode:                        -> [Conclusion]
 ```
 
 **Use when**: Most reasoning is straightforward but one assumption is risky.
@@ -184,7 +180,7 @@ Light Mode:                        → [Conclusion]
 ### Pattern 3: Compare Options
 
 ```
-Light Mode: [Problem] → [Research] → [Analysis: 3 options found]
+Light Mode: [Problem] -> [Research] -> [Analysis: 3 options found]
                                               |
                           Can't differentiate without rigor
                                               |
@@ -264,10 +260,11 @@ Light Mode: [Synthesis using verified result]
 - User doesn't ask "are you sure?"
 
 **Deep Mode is correct when**:
-- Multiple hypotheses compete
+- Multiple hypotheses compete (>=2 required)
 - Verification adds new information
 - Confidence tracking is useful
 - Dependencies are non-trivial
+- Bias audit catches reasoning errors before conclusion
 
 **Hybrid was the right call when**:
 - Escalation resolved a stuck point
@@ -290,10 +287,10 @@ Light Mode: [Synthesis using verified result]
 
 ---
 
-## Quick Reference Card (v2.0)
+## Quick Reference Card (v2.2)
 
 ```
-DECISION ROUTER: Type 1 → Deep | Type 2 → Select by characteristics
+DECISION ROUTER: Type 1 -> Deep | Type 2 -> Select by characteristics
 
 +-----------+-----------+-----------+-----------+-----------+
 |  DIRECT   |   LIGHT   | CONSENSUS |   DEEP    |  HYBRID   |
@@ -301,7 +298,7 @@ DECISION ROUTER: Type 1 → Deep | Type 2 → Select by characteristics
 | Trivial   | Clear     | Open-end  | Type 1    | Uncertain |
 | Single Q  | Linear    | Multiple  | High      | Start     |
 | Lookup    | Time      | options   | stakes    | simple    |
-|           | pressure  | Trade-off | Verify    | Escalate  |
+|           | pressure  | Trade-off | >=2 hypo  | Escalate  |
 +-----------+-----------+-----------+-----------+-----------+
 | Triggers: | Triggers: | Triggers: | Triggers: | Triggers: |
 | "what is" | "step by" | "best     | "Type 1"  | "think    |
@@ -310,14 +307,15 @@ DECISION ROUTER: Type 1 → Deep | Type 2 → Select by characteristics
 |           |           | "options" | "deeply"  |           |
 +-----------+-----------+-----------+-----------+-----------+
 | Output:   | Output:   | Output:   | Output:   | Output:   |
-| Answer    | 5 stages  | Advisor   | P/R/H/V/C | Stages→   |
-| only      | Progress  | matrix    | Atoms     | Atoms     |
+| Answer    | 5 stages  | Advisor   | P/R/H/V   | Stages->  |
+| only      | Progress  | matrix    | BA/C      | Atoms     |
 |           | bar       | + winner  | + conf    |           |
 +-----------+-----------+-----------+-----------+-----------+
 
 TYPE 1 (Irreversible): Clients, contracts, partnerships, purchases
-                       → Always Deep + EA reminder ("Sleep on it")
+                       -> Always Deep + EA reminder ("Sleep on it")
+                       -> Requires >=2 hypotheses + Bias Audit before Conclusion
 
 TYPE 2 (Reversible):   Content, pricing, tools, experiments
-                       → Route by characteristics, bias toward motion
+                       -> Route by characteristics, bias toward motion
 ```

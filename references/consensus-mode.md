@@ -133,9 +133,9 @@ Consensus Mode runs multiple "advisors" in parallel, each bringing a different p
 ### Contrarian Analysis
 
 **Assumptions Challenged**:
-1. "Content is the right approach" → What if direct outreach works better?
-2. "Audience wants this topic" → What if they're oversaturated?
-3. "Viral reach matters" → What if 10 right people beats 10k random?
+1. "Content is the right approach" -> What if direct outreach works better?
+2. "Audience wants this topic" -> What if they're oversaturated?
+3. "Viral reach matters" -> What if 10 right people beats 10k random?
 
 **Counter-Proposal**: Skip content, DM 20 ideal prospects directly
 **Confidence**: 0.60
@@ -189,7 +189,7 @@ After all advisors complete, build the comparison matrix:
 | Pattern Matcher | Twitter thread | 0.80 | 4h | 23 |
 | First Principles | Blog + video | 0.70 | 3d | 19 |
 | Contrarian | Direct DM | 0.60 | 1h | 18 |
-| Pragmatist | Thread→video | 0.85 | 4h | 24 |
+| Pragmatist | Thread->video | 0.85 | 4h | 24 |
 ```
 
 ### Selection Criteria
@@ -255,7 +255,7 @@ When MCP tools are available, advisors can query external data:
 
 **Problem**: "What content should I create this week to grow my AI consulting brand?"
 
-### [ROUTER] Type 2 (reversible) | Open-ended, multiple viable paths | → Consensus Mode
+### [ROUTER] Type 2 (reversible) | Open-ended, multiple viable paths | -> Consensus Mode
 
 ### Advisor Outputs
 
@@ -292,7 +292,7 @@ When MCP tools are available, advisors can query external data:
 | Pattern Matcher | Before/after thread | 0.78 | 22 |
 | First Principles | Blog + Loom | 0.68 | 18 |
 | Contrarian | Direct outreach | 0.55 | 15 |
-| Pragmatist | Repurpose→thread+carousel | 0.83 | 24 |
+| Pragmatist | Repurpose->thread+carousel | 0.83 | 24 |
 
 ### Consensus Analysis
 
@@ -316,7 +316,7 @@ When MCP tools are available, advisors can query external data:
 | Avoid | Why | Instead |
 |-------|-----|---------|
 | Ignoring Contrarian | Miss blind spots | Always address the challenge, even if rejecting |
-| Over-weighting Pattern Matcher | Past ≠ future | Balance with First Principles |
+| Over-weighting Pattern Matcher | Past != future | Balance with First Principles |
 | Skipping low-confidence advisors | Lose perspective | Include all in matrix |
 | Analysis paralysis | Defeats purpose | ICE score and ship |
 | Using Consensus for Type 1 | Needs verification | Use Deep Mode instead |
@@ -334,5 +334,5 @@ Consensus Mode is for fast, good-enough decisions. Escalate to Deep Mode if:
 
 ```
 [ESCALATION] Pattern Matcher and First Principles have conflicting premises
-→ Converting proposals to hypotheses for Deep Mode verification
+-> Converting proposals to hypotheses for Deep Mode verification
 ```
