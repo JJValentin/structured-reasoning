@@ -60,6 +60,49 @@ Source: Product requirements document v2.3
 
 ---
 
+### Premise Staleness (Decay Tracking)
+
+**Purpose:** Track when premises become outdated and need re-verification.
+
+**Tracking fields:** Each premise should include:
+- `established`: timestamp when fact was verified
+- `source`: where it came from
+- `decay_rate`: how quickly it becomes stale (days)
+
+**Staleness thresholds:**
+| Premise Type | Default Decay | Warning |
+|--------------|---------------|---------|
+| API documentation | 90 days | Re-verify with current docs |
+| Product requirements | 30 days | Confirm still valid with stakeholders |
+| Performance measurements | 7 days | Re-measure under current conditions |
+| External facts/statistics | 180 days | Check for updated sources |
+| Code behavior | 14 days | Verify code hasn't changed |
+
+**Template with staleness:**
+```markdown
+## [P1] PREMISE (confidence: 0.95, established: 2025-01-16)
+The API rate limit is 1000 req/min.
+Dependencies: none
+Source: API documentation v2.3
+Decay: 90 days
+
+Warning: STALE (47 days old, threshold: 30 days)
+Consider re-verifying before use in high-stakes reasoning.
+```
+
+**Staleness actions:**
+| Age vs Threshold | Status | Action |
+|------------------|--------|--------|
+| < 50% | Fresh | Use normally |
+| 50-100% | Aging | Note in reasoning, verify if critical |
+| > 100% | Stale | Re-verify before using in new reasoning |
+| > 200% | Expired | Treat as unverified assumption |
+
+**Integration with persistence:**
+When using `/sr-decay`, all premises in the knowledge base are checked against their decay thresholds and flagged accordingly.
+
+---
+
 ### Reasoning (R)
 
 **Purpose**: Draw logical conclusions from premises and other reasoning.
@@ -146,6 +189,37 @@ Falsifiable if: Response time exceeds 200ms at 10,000 users
 
 ---
 
+### Competing Hypothesis Requirement
+
+**Rule:** Before any verification can proceed, Deep Mode requires:
+- Minimum 2 hypotheses formed
+- Each hypothesis must be distinct (not trivial variations)
+
+**Warning trigger:**
+```
+Warning: ANCHORING RISK: Only H1 proposed.
+Quint's FPF requires competing hypotheses before verification.
+Consider: What alternative explanations or approaches exist?
+```
+
+**Skip conditions:**
+- User explicitly says "single hypothesis OK"
+- Verification already running (too late)
+- Hypothesis is mathematical/definitional (only one answer)
+
+**Anti-Anchoring Protocol:**
+When first hypothesis is formed, Claude should prompt:
+
+> "H1 proposed. Before verification, consider:
+> - What's the opposite approach?
+> - What would a skeptic suggest?
+> - What have we assumed that might be wrong?"
+
+This mirrors Quint Code's Abduction phase which forces competing hypotheses
+to prevent premature commitment to the first idea.
+
+---
+
 ### Verification (V)
 
 **Purpose**: Test hypotheses and update confidence based on evidence.
@@ -193,6 +267,55 @@ Effect on H1: Confidence increased from 0.65 to 0.82
 - Not updating hypothesis confidence
 - Confirmation bias (ignoring failures)
 - Missing important tests
+
+---
+
+### Bias Audit (BA)
+
+**Purpose:** Check reasoning process for systematic errors before concluding.
+
+**When:** Required before any Conclusion atom when confidence >=0.80
+
+**Characteristics**:
+- Meta-level check on the reasoning process itself
+- Not about the content, but about how we reasoned
+- Must pass before Conclusion can be formed
+- Can reveal need for more hypotheses or evidence
+
+**Template:**
+```markdown
+## [BA1] BIAS AUDIT
+| Bias Type | Check | Status |
+|-----------|-------|--------|
+| Anchoring | >=2 hypotheses generated? | Y/N |
+| Confirmation | Sought disconfirming evidence? | Y/N |
+| Availability | Over-weighting recent/vivid info? | Y/N |
+| Sunk cost | Attached to early hypothesis despite evidence? | Y/N |
+
+Overall: [PASS/WARN/FAIL]
+Dependencies: V1, H1, H2
+```
+
+**Audit outcomes**:
+| Result | Action |
+|--------|--------|
+| PASS (all Y) | Proceed to Conclusion |
+| WARN (1-2 N) | Document mitigation, then proceed |
+| FAIL (3+ N) | Return to Hypothesis phase, address gaps |
+
+**Bias definitions**:
+| Bias | Definition | Mitigation |
+|------|------------|------------|
+| Anchoring | Over-relying on first hypothesis | Generate alternatives before verifying |
+| Confirmation | Only seeking supporting evidence | Actively test how hypothesis could fail |
+| Availability | Weighting recent/memorable info higher | Check if older/less vivid evidence exists |
+| Sunk cost | Sticking with hypothesis due to effort invested | Re-evaluate based on evidence alone |
+
+**Common mistakes**:
+- Skipping bias audit for "obvious" conclusions
+- Rubber-stamping all checks as Y without reflection
+- Not documenting mitigation for WARN status
+- Treating FAIL as blocking rather than instructive
 
 ---
 
@@ -250,9 +373,9 @@ Dependencies: V1, H1
 ### Notation
 
 ```
-[P1] ─┬─→ [R1] ─→ [H1] ─→ [V1] ─→ [C1]
-[P2] ─┘              ↑
-[P3] ─→ [R2] ────────┘
+[P1] ---+---> [R1] ---> [H1] ---> [V1] ---> [C1]
+[P2] ---+                ^
+[P3] ---> [R2] ----------+
 ```
 
 ### Valid Dependency Patterns
@@ -272,7 +395,7 @@ Dependencies: V1, H1
 
 ### Dependency Rules
 
-1. **No cycles**: A → B → C → A is invalid
+1. **No cycles**: A -> B -> C -> A is invalid
 2. **No orphans**: Every atom except P must have dependencies
 3. **No dead ends**: Every non-C atom should lead toward C
 4. **Traceability**: Every C must trace back to at least one P
@@ -343,38 +466,6 @@ elif all_fail:
 | Too complex | Can't test H1 directly | Create testable sub-components |
 | Conflicting evidence | Some tests pass, some fail | Isolate the failing aspect |
 
-### Decomposition Process
-
-**Before**:
-```markdown
-## [H1] HYPOTHESIS (confidence: 0.55)
-The caching layer will solve our performance issues.
-Dependencies: R1
-```
-
-**After decomposition**:
-```markdown
-## [H1] HYPOTHESIS (confidence: 0.55, DECOMPOSED)
-The caching layer will solve our performance issues.
-Dependencies: R1
-Decomposed into: H1.1, H1.2, H1.3
-
-## [H1.1] SUB-HYPOTHESIS (confidence: 0.70)
-Redis can handle our read throughput (50k ops/sec).
-Dependencies: R1, P4
-Parent: H1
-
-## [H1.2] SUB-HYPOTHESIS (confidence: 0.60)
-Cache hit rate will exceed 80% for our access patterns.
-Dependencies: R2
-Parent: H1
-
-## [H1.3] SUB-HYPOTHESIS (confidence: 0.50)
-Cache invalidation strategy will maintain data consistency.
-Dependencies: R3
-Parent: H1
-```
-
 ### Decomposition Rules
 
 1. **Independence**: Sub-hypotheses should be independently testable
@@ -394,24 +485,6 @@ Parent: H1
 | Depth > 4 | Force contraction to prevent over-analysis |
 | Diminishing returns | Sub-decomposition not adding value |
 | Time constraint | Contract with current best estimate |
-
-### Contraction Process
-
-**Before contraction**:
-```markdown
-## [H1.1] SUB-HYPOTHESIS (confidence: 0.88, verified)
-## [H1.2] SUB-HYPOTHESIS (confidence: 0.75, verified)
-## [H1.3] SUB-HYPOTHESIS (confidence: 0.82, verified)
-```
-
-**After contraction**:
-```markdown
-## [H1] HYPOTHESIS (confidence: 0.82, CONTRACTED)
-The caching layer will solve our performance issues.
-Contracted from: H1.1 (0.88), H1.2 (0.75), H1.3 (0.82)
-New confidence: average = 0.82
-Status: verified (all sub-hypotheses verified)
-```
 
 ### Contraction Calculation
 
@@ -436,33 +509,6 @@ contracted_confidence = min(sub_confidences) * 0.9 + average(sub_confidences) * 
 | No viable hypotheses | All H rejected | Report failure, suggest new approach |
 | User acceptance | User says "good enough" | Conclude with current state |
 
-### Termination Output
-
-```markdown
-## TERMINATION REPORT
-
-**Status**: High-confidence conclusion reached
-
-**Final Conclusion**: [C1]
-Confidence: 0.87
-
-**Atom Summary**:
-- Premises: 4 (all high confidence)
-- Reasoning: 3 (chain intact)
-- Hypotheses: 2 created, 1 verified, 1 rejected
-- Verifications: 2 completed
-- Conclusions: 1 (accepted)
-
-**Remaining Uncertainties**:
-- [List any WARN results from verification]
-- [List any untested aspects]
-
-**Dependency Path** (C1):
-P1 → R1 → H1 → V1 → C1
-P2 → R1
-P3 → R2 → H1
-```
-
 ---
 
 ## Visual Representations
@@ -481,19 +527,7 @@ Confidence Distribution:
   0.7-0.8: ## (2 atoms)
   <0.7 : # (1 atom)
 
-Best Path: P1→R1→H1→V1→C1 (0.87)
-```
-
-### Dependency Graph (ASCII)
-
-```
-     [P1:0.95]──┐
-                ├──[R1:0.88]──┐
-     [P2:0.90]──┘             │
-                              ├──[H1:0.82]──[V1:0.85]──[C1:0.87]
-     [P3:0.92]──[R2:0.85]─────┘
-
-     [P4:0.88]──[R3:0.80]──[H2:0.45]──[V2:REJECTED]
+Best Path: P1->R1->H1->V1->C1 (0.87)
 ```
 
 ---
