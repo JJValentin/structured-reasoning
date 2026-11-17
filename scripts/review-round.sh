@@ -1,39 +1,44 @@
 #!/usr/bin/env bash
-# review-round.sh: run ONE round of the adversarial review loop (Sol Loop) on a decision brief.
-# Same contract as the OpenCode bounded review loop: one reviewer at a time, no subagents,
-# round 1 full, later rounds delta-only, host judges every finding.
+# review-round.sh: run ONE round of the adversarial review loop on a decision brief.
+# One reviewer at a time, no subagents, round 1 full, later rounds delta-only.
+# The host (you or your agent) judges every finding; the reviewer never decides.
 #
-# Usage:  review-round.sh <brief.md> <run-dir> <round-number> [sol|opus|fable]
-#   brief.md:  round 1 = full decision brief with draft pick.
+# Usage:  review-round.sh <brief.md> <run-dir> <round-number> [codex|claude]
+#   brief.md:  round 1 = full decision brief with a draft pick (see templates/review-brief.md).
 #              round 2+ = revised decision + findings ledger + open findings only.
-#   run-dir:   durable dir for this decision, e.g. ~/.hermes/reports/review-loop/<date>-<topic>
-#   reviewer:  default sol for either Claude or GPT hosts; independence is a fresh context.
-#              opus needs an authorized design/diagnostic exception or explicit selection;
-#              fable needs Joshua's approval. No automatic family switch or Opus closing.
-#              A failed/unavailable round never authorizes a model fallback.
-#   REVIEW_SCOPE=full forces a full three-angle review on a later round (the double-check round).
+#   run-dir:   durable dir for this decision, e.g. ./review-runs/2026-01-15-pricing
+#   reviewer:  which CLI runs the review (default: codex).
+#                codex  -> OpenAI Codex CLI   (https://github.com/openai/codex)
+#                claude -> Claude Code CLI    (https://docs.claude.com/claude-code)
+#
+# Environment:
+#   REVIEW_MODEL    model ID to pin (recommended; otherwise the CLI's default model is used).
+#                   Pin an exact ID so every round uses the same reviewer.
+#   REVIEW_EFFORT   codex only: reasoning effort (low|medium|high). Default: high.
+#   REVIEW_TIMEOUT  seconds per round. Default: 300.
+#   REVIEW_SCOPE    set to "full" to force a full three-angle review on a later round
+#                   (the "double check" round).
+#
 # Exit: 0 = valid review; 1 = invalid/failed round (ERROR sentinel written, raw reply kept as
 #       r<N>-review.md.invalid); 2 = usage error.
 # Output: <run-dir>/r<N>-brief.md, r<N>-review.md, r<N>.log; appends to <run-dir>/meta.txt.
-# Prints the review file path on the last line. A failed call writes an ERROR sentinel.
-#
-# Pinned model IDs (updated 2026-10-15). Never use bare CLI aliases: 'fable'/'opus' float to
-# the newest release silently. Override with SOL_MODEL / OPUS_MODEL / FABLE_MODEL.
+# Prints the review file path on the last line.
 
 set -uo pipefail
 
-BRIEF="${1:?usage: review-round.sh <brief.md> <run-dir> <round> [sol|opus|fable]}"
-RUN="${2:?run-dir required}"
-N="${3:?round number required}"
-WHO="${4:-sol}"
+USAGE="usage: review-round.sh <brief.md> <run-dir> <round> [codex|claude]"
+BRIEF="${1:?$USAGE}"
+RUN="${2:?$USAGE}"
+N="${3:?$USAGE}"
+WHO="${4:-codex}"
 [ -f "$BRIEF" ] || { echo "brief not found: $BRIEF" >&2; exit 2; }
 case "$N" in ''|*[!0-9]*) echo "round must be a number" >&2; exit 2;; esac
 [ "$N" -le 5 ] || { echo "round $N exceeds the hard ceiling of 5" >&2; exit 2; }
+case "$WHO" in codex|claude) ;; *) echo "unknown reviewer: $WHO (codex|claude)" >&2; exit 2;; esac
+command -v "$WHO" >/dev/null 2>&1 || { echo "reviewer CLI not found on PATH: $WHO" >&2; exit 2; }
 
-SOL_MODEL="${SOL_MODEL:-gpt-6.1-sol}"
-SOL_EFFORT="${SOL_EFFORT:-high}"
-OPUS_MODEL="${OPUS_MODEL:-claude-opus-5-5}"
-FABLE_MODEL="${FABLE_MODEL:-claude-fable-5-1}"
+MODEL_ID="${REVIEW_MODEL:-}"
+EFFORT="${REVIEW_EFFORT:-high}"
 TIMEOUT="${REVIEW_TIMEOUT:-300}"
 
 mkdir -p "$RUN"
@@ -52,23 +57,18 @@ PROMPT=$'You are the single independent reviewer in a bounded adversarial review
 t0=$(date +%s)
 rm -f "$OUTF"   # never let a stale review from an earlier attempt count as this one
 case "$WHO" in
-  sol)
-    MODEL="$SOL_MODEL effort=$SOL_EFFORT"
-    { printf '%s' "$PROMPT"; cat "$BRIEF"; } \
-      | timeout "$TIMEOUT" codex exec -m "$SOL_MODEL" -c model_reasoning_effort="\"$SOL_EFFORT\"" \
-          --skip-git-repo-check -o "$OUTF" - >"$LOGF" 2>&1
+  codex)
+    ARGS=(exec --skip-git-repo-check -c "model_reasoning_effort=\"$EFFORT\"" -o "$OUTF")
+    [ -n "$MODEL_ID" ] && ARGS+=(-m "$MODEL_ID")
+    MODEL="${MODEL_ID:-codex-default} effort=$EFFORT"
+    { printf '%s' "$PROMPT"; cat "$BRIEF"; } | timeout "$TIMEOUT" codex "${ARGS[@]}" - >"$LOGF" 2>&1
     RC=$? ;;
-  opus)
-    MODEL="$OPUS_MODEL"
-    { printf '%s' "$PROMPT"; cat "$BRIEF"; } \
-      | timeout "$TIMEOUT" claude -p --model "$OPUS_MODEL" >"$OUTF" 2>"$LOGF"
+  claude)
+    ARGS=(-p)
+    [ -n "$MODEL_ID" ] && ARGS+=(--model "$MODEL_ID")
+    MODEL="${MODEL_ID:-claude-default}"
+    { printf '%s' "$PROMPT"; cat "$BRIEF"; } | timeout "$TIMEOUT" claude "${ARGS[@]}" >"$OUTF" 2>"$LOGF"
     RC=$? ;;
-  fable)
-    MODEL="$FABLE_MODEL"
-    { printf '%s' "$PROMPT"; cat "$BRIEF"; } \
-      | timeout "$TIMEOUT" claude -p --model "$FABLE_MODEL" >"$OUTF" 2>"$LOGF"
-    RC=$? ;;
-  *) echo "unknown reviewer: $WHO (sol|opus|fable)" >&2; exit 2 ;;
 esac
 SECS=$(( $(date +%s) - t0 ))
 

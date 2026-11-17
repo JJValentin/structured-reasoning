@@ -1,56 +1,82 @@
 # Structured Reasoning
 
-A decision discipline for agent skills (Claude Code, Hermes, Codex). Version 3.0.0.
+An agent skill for making decisions that are expensive to reverse. Works with Claude Code
+and any agent that loads `SKILL.md` skills (Codex, OpenCode, Hermes and similar).
 
-It forces the same sequence on any call that is expensive to reverse: frame the problem,
-name the one binding constraint, pull prior context from memory, challenge assumptions,
-generate real options, and for irreversible calls, pressure-test the draft in a bounded
-adversarial review loop before committing.
+It makes your agent follow the same sequence on every real decision: frame the problem,
+name the one binding constraint, check what was already decided, challenge assumptions,
+generate real options, and, for irreversible calls, pressure-test the draft with an
+independent reviewer before committing.
 
-## Modes
+## Two modes
 
-- **Fast Mode**: reversible, cheap-to-undo calls. Decide solo; the user sees the decision, not the steps.
-- **Review Loop Mode** (the "Sol Loop"): irreversible or high-stakes calls, or when asked to "sol loop" something.
-  One independent reviewer at a time, round 1 full (red team, premise, pre-mortem), rounds 2+ delta only,
-  3-round budget (5 with a recorded serious risk). The host judges every finding; the reviewer never decides.
+| Mode | When | What happens |
+|---|---|---|
+| **Fast Mode** | Reversible, cheap to undo | The agent reasons through the 7 steps quietly and gives you the decision |
+| **Review Loop** | Irreversible or high-stakes, or you ask for it | A separate reviewer attacks the draft (red team, premise, pre-mortem). The agent fixes or rebuts each finding. Max 3 rounds. You get the real verdict, including anything still open |
 
-Route with the reversibility test: "if this is wrong, how hard is it to walk back?"
-
-## The Loop
-
-1. Frame
-2. Constraint check (Theory of Constraints: one binding constraint, typed)
-3. Gather context from durable memory
-4. First principles
-5. Options (2-4 real ones)
-6. Pressure-test (prune in Fast Mode; review loop in Review Loop Mode)
-7. Decide + record
-
-Every run ends with the output contract: DECISION, CONFIDENCE, RATIONALE, REVIEW, NEXT ACTION,
-REVIEW TRIGGER, SUCCESS METRICS.
-
-## Files
-
-- `SKILL.md`: the skill
-- `scripts/review-round.sh`: runs one review round via the `codex` or `claude` CLI, validates the
-  verdict, and writes `r<N>-brief.md`, `r<N>-review.md` and `meta.txt` into a run directory
-
-```
-bash scripts/review-round.sh <brief.md> <run-dir> <round> [sol|opus|fable]
-```
-
-Model IDs are pinned in the script; override with `SOL_MODEL`, `OPUS_MODEL`, `FABLE_MODEL`.
+The router is one question: *"If this is wrong, how hard is it to walk back?"*
 
 ## Install
 
-Copy this folder into your skills directory (for Claude Code: `~/.claude/skills/structured-reasoning/`).
+**Claude Code** (personal skills):
 
-## Changes in 3.0.0
+```bash
+git clone https://github.com/JJValentin/structured-reasoning ~/.claude/skills/structured-reasoning
+```
 
-- Replaced the Light / Deep / Consensus / Hybrid modes and the parallel advisor panel with
-  Fast Mode and a single-reviewer Review Loop.
-- Added the Theory of Constraints step and the findings ledger with severity rules.
-- Added `scripts/review-round.sh`; removed the v2 `references/` docs.
+For a single project, clone into `.claude/skills/structured-reasoning` inside the repo instead.
+
+**Other agents:** put the folder wherever your agent loads skills from. The skill is plain
+Markdown; only the optional review script needs a shell.
+
+**Update:** `git -C ~/.claude/skills/structured-reasoning pull`
+
+## Use
+
+It triggers on its own before recommendations and hard-to-undo calls. You can also ask:
+
+- "Help me decide between X and Y"
+- "Think this through carefully"
+- "Review loop this plan"
+- "Double check this" (adds one full review round with a fresh reviewer)
+
+Every run ends with the same contract: DECISION, CONFIDENCE, RATIONALE, REVIEW, NEXT ACTION,
+REVIEW TRIGGER, SUCCESS METRICS.
+
+## The review script (optional)
+
+Review Loop needs an independent reviewer. If your agent has a subagent tool, it can use that.
+Otherwise `scripts/review-round.sh` runs one round through the
+[Codex CLI](https://github.com/openai/codex) or the
+[Claude Code CLI](https://docs.claude.com/claude-code):
+
+```bash
+cp templates/review-brief.md brief.md   # fill it in
+REVIEW_MODEL=<model-id> bash scripts/review-round.sh brief.md ./review-runs/my-decision 1 codex
+```
+
+- Reviewer: `codex` (default) or `claude`
+- `REVIEW_MODEL`: pin an exact model ID so every round uses the same reviewer (otherwise the CLI default)
+- `REVIEW_EFFORT`: codex reasoning effort, default `high`
+- `REVIEW_TIMEOUT`: seconds per round, default `300`
+- `REVIEW_SCOPE=full`: force a full review on a later round
+
+Each round writes `r<N>-brief.md`, `r<N>-review.md` and a line in `meta.txt`. A failed or
+malformed reply is never counted as a review: the script writes an `ERROR` sentinel and exits 1.
+
+## Files
+
+```
+SKILL.md                    the skill
+scripts/review-round.sh     one review round via codex or claude CLI
+templates/review-brief.md   brief template for the reviewer
+```
+
+## Contributing
+
+Issues and pull requests welcome. Keep changes small, keep `SKILL.md` tool-agnostic, and
+test the script with `bash -n scripts/review-round.sh` plus one real round before opening a PR.
 
 ## License
 
