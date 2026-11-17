@@ -1,241 +1,233 @@
 ---
 name: structured-reasoning
-description: Multi-mode structured reasoning with GPT-5.2 thinker for Type 1 decision validation
-metadata: {"clawdbot":{"always":true,"emoji":"🧠"}}
+description: >-
+  Use before any decision card, recommendation, or hard-to-undo call. Fast Mode
+  (reversible, decide solo, silent) or Review Loop (irreversible or "sol loop": one
+  independent Sol reviewer by default, bounded rounds, host judges every finding). Load
+  proactively; triggers live in work-loop. Not for lookups or small reversible choices.
+version: 3.0.0
+author: Hermes Agent
+license: MIT
+platforms: [linux]
+metadata:
+  timelessness_score: 8
+  hermes:
+    tags: [reasoning, decisions, review-loop, sol-loop, delegation, type-1]
+    related_skills: [delegation-routing, search-first, work-loop, coding-delegation]
 ---
 
-# Structured Reasoning Skill
+# Structured Reasoning
 
-Use this skill for complex decisions, especially Type 1 irreversible decisions.
+A decision discipline for calls that are expensive to reverse. It forces the same
+useful sequence every time: frame the real problem, gather context from memory,
+challenge assumptions, generate real options, and for irreversible calls, pressure-test
+the draft in a bounded adversarial review loop before committing.
 
-## The Engineering Flywheel for Decisions
+## When to Use
 
-All structured reasoning follows the 8-phase Engineering Flywheel:
+**Be proactive (Joshua, 2026-10-15).** Don't wait to be asked. The triggers live in
+`work-loop` (3. Decide), which is auto-loaded in every profile: before a
+decision card, before a hard-to-undo call, when he asks you to decide, and when choosing
+between approaches where the wrong one costs more than a day of rework.
 
-### Phase 1: Problem Framing (Requirements)
-Define the decision through clear requirements:
-- **What is the success criteria?** (the outcome, not the solution)
-- **What are the hard constraints?** (time, money, reversibility, dependencies)
-- **What does "done" look like?** (specific, testable)
-- **What would failure look like?** (to avoid)
+- "Help me decide" / "what should I choose" on something with real stakes
+- Type 1 decisions: contracts, partnerships, pricing/positioning lock-in, architecture, major spend
+- "Compare these options" / "weigh the tradeoffs" with genuine tension
+- "Think through this carefully" / "give me a second opinion" / "sol loop this"
+- "Double check this" on a consequential artifact before it is wired in or shipped (a rule
+  doc, a cut list, a plan): Review Loop on the artifact itself, with your response to any new
+  input from the requester as the draft recommendation
 
-**Output:** Clear decision objective with measurable success criteria
+Don't use for: factual lookups, low-stakes reversible choices, casual conversation,
+or anything where the answer is obvious. If reversing the decision is cheap and fast,
+skip the review and just decide.
 
-### Phase 2: Context Gathering (AS-IS State)
-Map the current state:
-- Read relevant files, data, prior decisions (memory_search)
-- Understand what currently exists and WHY
-- Gather market/competitor/customer context
-- Review constraints and dependencies
+## Route: which mode
 
-**Output:** Complete picture of current reality
+Apply the **reversibility test** first, then the **stakes test**.
 
-### Phase 3: First Principles (Deconstruct)
-Break down to fundamentals:
+- **Reversible, cheap to undo** -> Fast Mode. Decide solo, today. Silent: the user sees the
+  decision card or recommendation it produced, plus one line saying you reasoned it through,
+  never the seven steps.
+- **Irreversible OR high-stakes-if-wrong** -> Review Loop Mode.
+- **Joshua says "sol loop"** -> Review Loop Mode, whatever the stakes.
 
-1. **Identify assumptions** - List everything being assumed. Challenge each one.
-   - "Why do we believe this?"
-   - "Is this actually true, or just conventional wisdom?"
-   - "What if the opposite were true?"
+When unsure, ask one question: "if this is wrong, how hard is it to walk back?"
+Hard to walk back = Review Loop.
 
-2. **Find bedrock truths** - What do we KNOW to be true?
-   - Separate facts from interpretations
-   - Separate data from narratives
-   - Identify what's measurable vs. opinion
+## The Loop (both modes run this; Review Loop mode adds the reviewer at step 6)
 
-3. **Expose the real problem** - Why does this decision need to be made?
-   - "What problem are we actually solving?"
-   - "Why does this problem exist?"
-   - "What's wasteful in the current approach?"
+1. **Frame.** State success in one line, the hard constraints, and what failure looks like.
+   Done when: you can name the single thing that would make this a mistake.
+2. **Constraint check (Theory of Constraints, added 2026-08-15).** Before generating options,
+   name the ONE binding constraint the decision must relieve: the bottleneck that makes every
+   other improvement an illusion until it moves. Discipline from the `constraint-picker` skill:
+   ONE constraint, not three, not two; existential factors override everything; distinguish
+   input drought (inputs stopped, raise them) from conversion problem (inputs fine, process
+   broken, diagnose before adding volume); when an outcome dropped, look 1-2+ weeks back at the
+   leading inputs before blaming quality. Options that don't act on the named constraint are
+   decoration. Done when: the constraint is written in one sentence and typed
+   (input drought / conversion problem / existential).
+3. **Gather context.** Pull prior decisions and relevant facts from durable memory before
+   reasoning from scratch: `gbrain_recall(entity=...)` and/or `gbrain_query(...)`. Separate
+   a settled decision from a provisional example or an option the requester now asks you to
+   re-evaluate. When they say "check all options" or otherwise challenge the premise, reset
+   the option set before researching or recommending; do not optimize the most recently
+   mentioned format by default. Done when: you've checked whether this was decided or discussed
+   before, and labelled each prior item as settled or provisional.
+4. **First principles.** Challenge 1-3 load-bearing assumptions, including your constraint
+   pick from step 2. Build up from what's actually true, not from analogy or default. Done
+   when: you've named at least one assumption you can't verify.
+   For a rework or restructure, check that the plan acts on the symptom the requester actually
+   named; a plan that reorganizes everything except that symptom is betting on an untested
+   cause. Offer a cheap test of the cause (a small baseline or side-by-side) before the rebuild;
+   if the requester declines or lacks the history to supply samples, proceed and let their
+   review of the first real outputs be the check.
+5. **Options.** Generate 2-4 real options from the fundamentals (not one option plus strawmen).
+   Each must state how it moves the named constraint.
+   For each, the simplest path that could work. Done when: at least two options survive a first cut.
+6. **Pressure-test.** Fast Mode: prune to the simplest option that meets the constraints.
+   Review Loop Mode: run the loop (below). Done when: you have a leading option AND you've
+   heard the strongest case against it.
+7. **Decide + record.** Produce the output contract below, then persist the decision, its
+   rationale and the review receipt to memory: `gbrain_put_page(...)` (or
+   `gbrain_add_timeline_entry` on the relevant page).
+   Done when: the decision is written where future-you will find it.
 
-4. **Build up from basics** - Don't reason by analogy
-   - Build from first principles ("given these truths, what logically follows?")
-   - Question "best practices" - they're someone else's solution
+## Review Loop Mode (the Sol Loop, for decisions)
 
-**Output:**
-- Assumptions challenged: [list]
-- Bedrock truths: [list]
-- Real problem: [statement]
-- Waste identified: [what's unnecessary]
+This is strategic decision/plan review, not Theo's code `sol-loop`. Both use bounded
+adversarial review, but this skill owns decision verdicts and its own receipt; code review
+runs Theo's unmodified `sol-loop` with the letter's settings. Neither workflow requires a
+model-family switch. Theo's 3-provider `council` is separate, run only when Joshua asks.
 
-### Phase 4: Creative Synthesis (TO-BE Solution)
-Generate options from first principles:
-- Build 2-4 options from fundamentals (not by analogy)
-- Each option should honor constraints and truths
-- Design the simplest path for each option
-- Don't constrain to "how it's usually done"
+The host does NOT delegate the decision. The reviewer attacks; the host judges every finding,
+fixes with the smallest change or pushes back with evidence, and writes the final call.
 
-**Output:** 2-4 viable options with rationale
+### Rules
 
-### Phase 5: Validation & Delete (Prune + Validate)
-Test options and prune complexity:
-- Does each option actually meet requirements?
-- What can we delete and still succeed?
-- Which option is simplest while meeting all constraints?
-- **Spawn @thinker for Type 1 decisions** (see Thinker Integration)
+- **One independent reviewer at a time: `sol` (GPT-6.1 Sol, high) by default**, whether
+  the host is Opus or GPT/Sol. Independence means a separate review context, not a different
+  model family. Keep the reviewer model across rounds and carry the findings ledger; in T3,
+  each round is a fresh `delegate_task`, never a continued child thread. The reviewer may not
+  launch subagents or other reviewers. Opus main chat/strategy remains normal. Opus review
+  needs Joshua's explicit selection or a concrete design/taste or observed Sol diagnostic
+  limit within authority (`work-loop` Models); prefer a bounded consult
+  followed by Sol review. Security/high risk affects checks/allowance, not model family;
+  there is no mandatory Opus closing round. Fable/Astra still require Joshua's approval.
+- **Round 1 is full.** The reviewer covers three angles in order: red team (strongest case
+  the draft is wrong), premise (right question, constraint, options), pre-mortem (it failed in
+  90 days: why). Then anything else serious.
+- **Round 2+ is delta only:** the revised decision, the findings ledger, open findings. Each
+  prior finding gets RESOLVED / NOT RESOLVED; then any new problem the revision created.
+- **Severity:** BLOCKER (wrong or seriously harmful and hard to undo), SERIOUS (material gap
+  that would change the plan), NIT (decline it). Severity is the reviewer's label. You may
+  upgrade it; a downgrade is a rebuttal and must be recorded as one.
+- **Budget: 3 rounds per decision, 5 only after recording a concrete serious risk** (large or
+  irreversible money, legal/contract, security/auth, data loss, public reputation). A ceiling,
+  not a quota.
+- **Done means the reviewer accepted the CURRENT revision:** its last round on the current text
+  returned AGREE, or only NITs remain, with no open BLOCKER/SERIOUS. If you change the decision
+  after the reviewer's last word, that change needs another round. Budget spent before that =
+  the revision is **UNVERIFIED** and goes to Joshua as such.
+  **Exhaustion never means approval:** open BLOCKER/SERIOUS findings go to Joshua.
+- **Disclose the actual verdict.** Never report approval the reviewer didn't give, and never
+  hide a finding you rebutted that the reviewer still disputes.
+- **"Double check" from Joshua** adds one FULL three-angle round on the current decision by a
+  fresh independent Sol reviewer unless he explicitly selected another authorized model
+  (run with `REVIEW_SCOPE=full`). A fresh reviewer limited to the delta could not challenge the original
+  blind spots. It is one extra round recorded in the same receipt, never a silent budget reset.
 
-**Output:** Pruned options + thinker validation (if Type 1)
+### Run it
 
-### Phase 6: Execute (Decision)
-Make the call:
-- DECISION: Clear statement
-- CONFIDENCE: High/Medium/Low
-- RATIONALE: Why this option (reference flywheel phases)
+1. Write the round-1 brief (steps 1-5 of the Loop, the named constraint, the decisions already
+   settled, and your **draft recommendation** so the reviewer has something to attack). Inline
+   any artifact under review; the reviewer is a fresh CLI context and cannot read your files.
+2. In T3, use a fresh T3 `delegate_task` per round, an explicit live Sol target and the
+   round brief plus ledger; verify the returned model/options and preserve the same receipt
+   fields below. Outside T3, use the script for one round:
+   ```
+   RUN=~/.hermes/reports/review-loop/$(date +%F)-<topic>
+   bash ~/.hermes/skills-shared/structured-reasoning/scripts/review-round.sh <brief.md> "$RUN" 1 sol
+   ```
+   It writes `r1-brief.md`, `r1-review.md`, and appends a line to `meta.txt` (reviewer, model,
+   status, verdict, seconds). The reply shape lives in the script; don't restate it in the brief.
+3. **Judge each finding** and append to `$RUN/ledger.md`:
+   `F<n> | severity | finding | FIXED (the change) | REBUTTED (evidence) | DECLINED (nit)`.
+   Make the smallest justified change. Push back when the finding is wrong; don't expand scope.
+4. If any BLOCKER/SERIOUS is open, or you changed the decision, write the round-N brief:
+   frame and constraint in two lines, the revised decision, the ledger, the open findings.
+   Repeat step 2's route: inside T3, a fresh `delegate_task` on Sol with the revised brief
+   and ledger; outside T3, `review-round.sh <rN-brief.md> "$RUN" N sol`. Repeat 3-4 until
+   the reviewer has accepted the current revision or the budget is spent.
+5. **Write the receipt** into the decision record and to Joshua:
+   `Review: Sol Loop, rounds N/3, reviewer <model from meta.txt>, final verdict <actual>,
+   rebutted: F.., open: F..`. Up to 3 open BLOCKER/SERIOUS findings, ranked, one-line
+   consequence each, plus "N more in ledger.md". Shorten what he reads, never what you disclose.
+   Any change made after the last round is labelled **UNVERIFIED**.
 
-### Phase 7: Review (Verification)
-Set review criteria:
-- NEXT ACTION: Specific first step
-- REVIEW TRIGGER: When to revisit this decision
-- SUCCESS METRICS: How we'll know if it worked
+If a round FAILS (script exits 1: timeout, error exit, empty or malformed reply), classify
+it first. For a recoverable non-availability error, at most one same-model retry is allowed
+within the existing authority and recorded allowance. Capacity, quota, rate-limit, transport
+or provider unavailability means preserve the draft/checkpoint and pause; do not switch to
+Opus or another model automatically. Review is **unavailable**, not skipped: tell Joshua and
+hold the irreversible step until he decides. Never fall back to Fast Mode silently, reset
+rounds or fabricate a review.
 
-### Phase 8: Update Memory
-Capture learnings:
-- Update MEMORY.md with decision and rationale
-- Log to daily notes
-- Document pattern for future similar decisions
+**Keeping the reviewers current.** Model IDs are pinned in `scripts/review-round.sh`. Never use
+bare CLI aliases: `fable` and `opus` silently float to the newest release. To refresh, check
+the live catalog (`~/.codex/models_cache.json`, T3 `orchestrator_capabilities`, or
+`claude -p --model <id> --output-format json` and read `modelUsage`), update the IDs, run one
+round, and confirm `meta.txt` shows ok. One-run override: `SOL_MODEL=... OPUS_MODEL=...`.
 
----
+## Output Contract (always end with this)
 
-## The Flywheel for Decisions
+- **DECISION:** clear statement
+- **CONFIDENCE:** High / Medium / Low
+- **RATIONALE:** why, referencing the loop; in Review Loop mode, name each finding you rebutted
+- **REVIEW:** the receipt line (Review Loop mode only)
+- **NEXT ACTION:** the specific first step
+- **REVIEW TRIGGER:** the condition or date that reopens this
+- **SUCCESS METRICS:** how you'll know it worked
 
-```
-Problem Framing → Context Gathering → First Principles → Creative Synthesis
-        ↓                                                         ↓
-Update Memory ← Review ← Execute ← Validation & Delete (+ Thinker for Type 1)
-```
+## Common Pitfalls
 
-All decisions flow through 8 phases. Depth varies by mode.
+1. **Running the loop on a reversible call.** Run the reversibility test first; cheap-to-undo
+   goes Fast, unless Joshua said "sol loop".
+2. **No draft pick in the brief.** Without one the reviewer just restates the options. Include
+   your draft, the decisions already settled (so it attacks the plan, not settled choices), and
+   3-4 pointed questions. If your draft departs from a settled decision, label it a departure
+   Joshua must approve, not execution.
+3. **Treating every finding as mandatory.** You judge. Fix the valid ones minimally, rebut the
+   wrong ones with evidence, decline nits. Rubber-stamping the reviewer is as bad as ignoring it.
+4. **Re-reviewing everything each round.** Later rounds are delta only. A full re-review burns
+   the budget and invites the reviewer to reopen settled points.
+5. **Hiding the reviewer's dissatisfaction.** Report the actual last verdict. Theo added
+   verdict disclosure because his implementing agent sometimes buried the reviewer's objections.
+6. **Skipping memory.** Steps 3 and 7 exist so decisions compound. Recall before deciding,
+   persist the decision and receipt after.
+7. **Equating containment with a proven operational fix.** For shared-resource or performance
+   decisions, a cap can convert kills into throttling and timeouts. Require a bounded pre-rollout
+   replay with the interactive control plane live, explicit completion, OOM, PSI, swap, latency
+   and queue-wait pass criteria, then size the limits from its result.
+8. **Fabricating a review on failure.** If the review file holds the ERROR sentinel, say so.
+9. **Treating a format as selected because it was recently mentioned.** When a requester asks
+   for a re-evaluation, generate and compare the full relevant format set before designing the
+   content inside one format. Otherwise research becomes post-hoc justification for an anchor.
+10. **Bringing back the parallel panel.** Retired 2026-10-15 by Joshua. If you need more
+   breadth, that is the "double check" round with a fresh independent reviewer, normally
+   Sol, not three simultaneous voices or an automatic family switch.
 
-## Auto-Trigger Conditions
+## Verification Checklist
 
-Automatically invoke this skill when:
-- Type 1 decisions: contracts, partnerships, major purchases, architecture choices
-- Multi-factor analysis: comparing options with tradeoffs
-- Debugging: something failed and the cause is not obvious
-- Strategy/planning: business decisions, offer architecture, campaign planning
-- Disagreement or conflict: weighing competing perspectives
-
-Do NOT use for: simple factual questions, quick tasks, low-stakes Type 2 decisions, casual conversation.
-
-## Thinker Model
-
-The thinker alias maps to openai-codex/gpt-5.2 with extended thinking enabled.
-Use it for consensus validation on Type 1 decisions.
-
-## Reasoning Modes
-
-All modes follow the 8-phase flywheel. The mode determines depth and thinker usage.
-
-### 1. Light Mode - Quick Flywheel
-For medium-complexity, reversible decisions (Type 2). 2-3 minutes.
-
-**Compressed flywheel:**
-1. Problem Framing: 1-2 sentence decision statement
-2. Context Gathering: Quick memory_search or file check
-3. First Principles: Challenge 1-2 key assumptions
-4. Creative Synthesis: Generate 2-3 options
-5. Validation & Delete: Pick simplest option that works
-6. Execute: State decision
-7. Review: Set next action
-8. Update Memory: Quick note to daily log
-
-**Skip thinker for Type 2 - decide today.**
-
-### 2. Deep Mode - Full Flywheel + Thinker
-For Type 1 irreversible decisions. 5-10 minutes.
-
-**Full 8-phase flywheel:**
-- Run all phases completely (no shortcuts)
-- Phase 5 (Validation): Spawn @thinker for consensus validation
-- Synthesize thinker feedback before Phase 6 (Execute)
-
-**Thinker spawn pattern:**
-```javascript
-sessions_spawn({
-  task: "Validate this Type 1 decision. SITUATION: [summary]. MY RECOMMENDATION: [choice and rationale]. Challenge this: 1. What am I missing? 2. Strongest counter-argument? 3. Agree or disagree and why? 4. Blind spots?",
-  model: "thinker",
-  thinking: "high",
-  label: "thinker-validation"
-})
-```
-
-**After thinker responds:** Synthesize with your analysis, then proceed to Phase 6.
-
-### 3. Consensus Mode - Extended Flywheel
-For highest-stakes Type 1 decisions:
-- Architecture decisions that lock you in
-- Pricing or positioning that affects revenue
-- Contracts or partnerships
-
-**Full flywheel with extended validation:**
-- Phases 1-4: Standard
-- Phase 5: Spawn @thinker with FULL context (all 8 phases so far)
-- Request thinker to run their own flywheel independently
-- Compare results, resolve conflicts
-- Phase 6-8: Proceed with consensus decision
-
-## Decision Framework
-
-**Reversibility test:**
-- **YES (Type 2):** Light Mode - compressed flywheel, decide today, no thinker
-- **NO (Type 1):** Deep Mode - full flywheel + thinker validation
-  - **Highest stakes:** Consensus Mode - thinker runs independent flywheel
-
-**Complexity test:**
-- Simple/obvious → Skip structured reasoning entirely
-- Medium complexity → Light Mode
-- Complex with tradeoffs → Deep Mode
-- Irreversible + high stakes → Consensus Mode
-
-## Thinker Integration (Phase 5: Validation)
-
-The thinker model (GPT-5.2) provides external validation during Phase 5:
-- **Consensus validation:** Second opinion on Type 1 decisions
-- **Blind spot detection:** Catches things Opus might miss
-- **Devil's advocate:** Argues against your position
-- **Sanity check:** Validates reasoning is sound
-- **Independent flywheel:** Can run full 8-phase independently (Consensus Mode)
-
-**When to spawn thinker:**
-- Type 1 decisions: MANDATORY (Deep Mode or Consensus Mode)
-- Type 2 decisions: SKIP (decide faster without thinker)
-
-**Spawn pattern (Deep Mode):**
-```javascript
-sessions_spawn({
-  task: "Validate this Type 1 decision. SITUATION: [summary]. MY RECOMMENDATION: [choice and rationale]. Challenge this: 1. What am I missing? 2. Strongest counter-argument? 3. Agree or disagree and why? 4. Blind spots?",
-  model: "thinker",
-  thinking: "high",
-  label: "thinker-validation"
-})
-```
-
-**Spawn pattern (Consensus Mode):**
-```javascript
-sessions_spawn({
-  task: "Run your own independent Engineering Flywheel on this decision: [full context from phases 1-4]. Provide: 1. Your Problem Framing 2. Your First Principles analysis 3. Your options 4. Your recommendation 5. Where you disagree with my approach",
-  model: "thinker",
-  thinking: "high",
-  label: "thinker-consensus"
-})
-```
-
-## Output Format
-
-Always end structured reasoning with flywheel outputs:
-
-### Phase 6: Execute (Decision)
-**DECISION:** [Clear statement]
-**CONFIDENCE:** High/Medium/Low
-**RATIONALE:** [Why this option - reference flywheel phases]
-
-### Phase 7: Review (Verification)
-**NEXT ACTION:** [Specific first step]
-**REVIEW TRIGGER:** [When to revisit this decision]
-**SUCCESS METRICS:** [How we'll know if it worked]
-
-### Phase 8: Update Memory
-Log decision to:
-- `MEMORY.md` (if significant pattern/learning)
-- `memory/YYYY-MM-DD.md` (all decisions)
-- Relevant project/skill docs (if workflow changed)
+- [ ] Ran the reversibility test and picked the right mode
+- [ ] Named and typed the ONE binding constraint (step 2)
+- [ ] Pulled prior context from gbrain before reasoning (step 3)
+- [ ] Review Loop: brief had framing, constraint, options, settled decisions, AND a draft pick
+- [ ] Review Loop: independent Sol reviewer by default regardless of host family; same reviewer model, fresh T3 task and ledger each round; any exception justified within authority
+- [ ] Review Loop: every finding in `ledger.md` as fixed / rebutted / declined
+- [ ] Review Loop: rounds 2+ were delta only; done = reviewer accepted the current revision (or budget spent and marked UNVERIFIED)
+- [ ] Review Loop: a failed review was reported as unavailable and the irreversible step held
+- [ ] Review Loop: receipt with actual verdict and open findings given to Joshua; post-review changes marked UNVERIFIED
+- [ ] Output contract present and complete
+- [ ] Decision + rationale + receipt persisted to gbrain (step 7)
