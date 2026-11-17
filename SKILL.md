@@ -1,193 +1,144 @@
 ---
 name: structured-reasoning
-description: >-
-  Use before making a recommendation, presenting a decision, or committing to a
-  hard-to-undo call. Fast Mode for reversible choices (decide solo, quietly); Review
-  Loop for irreversible or high-stakes ones (one independent reviewer, bounded rounds,
-  the host judges every finding). Not for lookups or small reversible choices.
-version: 3.0.0
+description: Use when a consequential decision needs reasoning or review.
 license: MIT
 metadata:
+  version: 3.0.0
   tags: [reasoning, decisions, review-loop, type-1, theory-of-constraints]
 ---
 
 # Structured Reasoning
 
-A decision discipline for calls that are expensive to reverse. It forces the same
-useful sequence every time: frame the real problem, name the binding constraint, gather
-prior context, challenge assumptions, generate real options, and for irreversible calls,
-pressure-test the draft in a bounded adversarial review loop before committing.
+## Mode
 
-## When to Use
+Use before consequential recommendations/cards, hard-to-undo calls or choices risking over
+a day of rework; also requests to decide, compare, think carefully, get a second opinion or
+double check an artifact. Skip lookups, casual conversation and trivial choices.
 
-Be proactive. Don't wait to be asked. Use it:
+Test reversibility, then stakes. Cheap to reverse: **Fast Mode**, decide solo; show the
+recommendation plus one line that you reasoned it through, not seven steps. Irreversible OR
+high stakes if wrong OR explicit review-loop request: **Review Loop**. Unsure? Ask: "If
+wrong, how hard is this to walk back?" Hard means Review Loop.
 
-- Before presenting the user with a decision or recommendation that has real stakes
-- Before a hard-to-undo call: contracts, partnerships, pricing or positioning lock-in,
-  architecture, major spend, deletions, migrations
-- When the user asks you to decide, compare options, or weigh tradeoffs with genuine tension
-- When choosing between approaches where the wrong one costs more than a day of rework
-- When the user says "think this through carefully", "second opinion", "review loop this",
-  or "double check this" on a consequential artifact (a plan, a spec, a rule doc)
+## The Loop
 
-Don't use it for factual lookups, low-stakes reversible choices, casual conversation, or
-anything where the answer is obvious. If reversing the decision is cheap and fast, skip
-the review and just decide.
+1. **Frame.** State success, hard constraints and failure.
+   Done when: the decisive failure is named.
+2. **Constraint.** Name ONE bottleneck; existential factors override other improvements.
+   Input drought: inputs stopped, raise them. Conversion: inputs fine, diagnose process before
+   adding volume. For dropped outcomes inspect leading inputs 1-2+ weeks back before quality.
+   Discard options not moving this constraint.
+   Done when: constraint named/typed in one sentence.
+3. **Context.** Recall durable memory. Label prior items settled/provisional. When asked to
+   check all options or challenged on the premise, reset options before research; examples
+   are not settled decisions.
+   Done when: prior decisions checked/labelled.
+4. **First principles.** Challenge 1-3 load-bearing assumptions, including the constraint.
+   Restructuring must address the named symptom. Offer a cheap baseline/side-by-side cause
+   test; if declined or samples unavailable, proceed within authority and use the user's
+   review of first outputs as the check.
+   Done when: an unverifiable assumption is named.
+5. **Options.** Generate 2-4 real alternatives, not strawmen; state how each moves the
+   constraint and its simplest workable path.
+   Done when: at least two options survive.
+6. **Pressure-test.** Fast Mode: pick the simplest option meeting constraints. Review Loop:
+   use the procedure below.
+   Done when: leading option faced strongest counterargument.
+7. **Record.** Produce the output contract; persist decision, rationale and review receipt
+   in durable memory.
+   Done when: decision/evidence are retrievable.
 
-## Route: which mode
+## Review Loop
 
-Apply the **reversibility test** first, then the **stakes test**.
+The host decides and judges findings; the reviewer attacks. Decision review, code review
+and requested panels are separate; none requires switching model families.
 
-- **Reversible, cheap to undo** -> Fast Mode. Decide solo. Quiet: the user sees the
-  decision or recommendation, plus one line saying you reasoned it through, never the
-  seven steps.
-- **Irreversible OR high-stakes-if-wrong** -> Review Loop Mode.
-- **The user asks for a review loop** -> Review Loop Mode, whatever the stakes.
+### Reviewer and allowance
 
-When unsure, ask one question: "if this is wrong, how hard is it to walk back?"
-Hard to walk back = Review Loop.
+- One reviewer: strongest reasoning model within authorization/cost limits. Prefer another
+  family when available within those limits; one provider works equally well. Independence:
+  **separate fresh context each round**, even on the host's model. Reviewer cannot delegate.
+- Pin exact model ID/options throughout. Never resume a reviewer; carry the ledger. Record
+  authorized selection exceptions/reasons. Difficulty does not authorize a pricier model;
+  risk raises checks or allowance.
+- **3 rounds per decision; 5 only after recording a concrete serious risk** in `allowance.md`
+  and the receipt: irreversible money, legal/contract, security/auth, data loss or public
+  reputation. Ceiling, not quota. Model/run-directory changes never reset the count.
+- Round 1: FULL red team, premise, pre-mortem in order, then other serious issues.
+  Round 2+: DELTA revised decision, ledger and open findings; mark every prior finding
+  RESOLVED / NOT RESOLVED, then new problems the revision created.
+- **Double check**: one FULL fresh round (`REVIEW_SCOPE=full`), same receipt/model/allowance.
+  No room: report exhaustion, never reset/exceed five.
 
-## The Loop (both modes; Review Loop adds the reviewer at step 6)
+### Run, judge, repeat
 
-1. **Frame.** State success in one line, the hard constraints, and what failure looks like.
-   Done when: you can name the single thing that would make this a mistake.
-2. **Constraint check (Theory of Constraints).** Before generating options, name the ONE
-   binding constraint the decision must relieve: the bottleneck that makes every other
-   improvement an illusion until it moves. One constraint, not three. Existential factors
-   (cash runway, legal exposure, health) override everything. Distinguish an **input
-   drought** (inputs stopped: raise them) from a **conversion problem** (inputs fine, the
-   process is broken: diagnose before adding volume). When an outcome dropped, look one to
-   two weeks back at the leading inputs before blaming quality. Options that don't act on
-   the named constraint are decoration.
-   Done when: the constraint is one sentence and typed (input drought / conversion / existential).
-3. **Gather context.** Check whatever durable memory you have (notes, decision logs, project
-   docs, prior conversations, a memory tool) for prior decisions and relevant facts before
-   reasoning from scratch. Separate a settled decision from a provisional example or an
-   option the user now wants re-evaluated. When they say "check all options" or challenge
-   the premise, reset the option set; don't optimize the most recently mentioned option by default.
-   Done when: you've checked whether this was decided before, and labelled each prior item
-   settled or provisional.
-4. **First principles.** Challenge 1-3 load-bearing assumptions, including your constraint
-   pick from step 2. Build up from what's actually true, not from analogy or default.
-   For a rework or restructure, check that the plan acts on the symptom the user actually
-   named; a plan that reorganizes everything except that symptom is betting on an untested
-   cause. Offer a cheap test of the cause before the rebuild.
-   Done when: you've named at least one assumption you can't verify.
-5. **Options.** Generate 2-4 real options (not one option plus strawmen). Each states how
-   it moves the named constraint, and the simplest path that could work.
-   Done when: at least two options survive a first cut.
-6. **Pressure-test.** Fast Mode: prune to the simplest option that meets the constraints.
-   Review Loop Mode: run the loop below.
-   Done when: you have a leading option AND you've heard the strongest case against it.
-7. **Decide and record.** Produce the output contract below, then persist the decision, its
-   rationale and any review receipt wherever durable memory lives for this user or project.
-   Done when: the decision is written where a future session will find it.
+1. Fill `templates/review-brief.md`: frame, constraint, options, settled decisions, draft pick,
+   3-4 pointed questions, inline artifact. Label departures as requiring user approval.
+   Done when: draft and evidence are inlined.
+2. `templates/reviewer-prompt.md` owns both scopes. Native route: send rendered bytes verbatim
+   to a fresh reviewer; verify model/options from runner metadata, not self-identification.
+   CLI: Python 3 plus selected CLI:
+   ```sh
+   python3 <skill-dir>/scripts/review-support.py render brief.md 1
+   REVIEW_MODEL=<exact-id> bash <skill-dir>/scripts/review-round.sh brief.md ./review-runs/topic 1 codex
+   ```
+   Before every round read `templates/reviewer-runbook.md`: adapters, identity and receipt.
+   Done when: valid reply/verified identity/options recorded.
+3. Append every finding and host judgment to `ledger.md`:
+   `F<n> | severity | finding | FIXED (change) / REBUTTED (evidence) / DECLINED (nit)`.
+   BLOCKER: wrong/seriously harmful and hard to undo. SERIOUS: gap changing the plan.
+   NIT: preference, decline. Upgrades allowed; downgrades rebut the reviewer's severity and
+   must be recorded. Fix minimally or push back with evidence; avoid scope growth.
+   Done when: every finding judged; disputes visibly open.
+4. If serious findings remain or text changed, send the revised draft, frame/constraint in
+   two lines, ledger and open findings to the next fresh context, same model. Done means
+   reviewer accepted **current text**: AGREE or only NITs, no open BLOCKER/SERIOUS. Later
+   changes need another round or are **UNVERIFIED**. Exhaustion is not approval; escalate.
+   Done when: current text accepted or UNVERIFIED with open serious findings escalated.
+5. Disclose `Review: rounds N/3 (or N/5, risk: ...), reviewer <observed model>, final verdict
+   <actual>, rebutted: F.., open: F..`. Rank up to three open BLOCKER/SERIOUS and consequences,
+   plus "N more in ledger.md". Preserve raw replies and disputed objections.
+   Done when: receipt disclosed/saved; post-review edits labelled.
 
-## Review Loop Mode
+### Failure and refresh
 
-The host does NOT delegate the decision. The reviewer attacks; the host judges every
-finding, fixes with the smallest change or pushes back with evidence, and writes the final call.
+Classify first: one same-model retry for recoverable empty/malformed replies only, within
+authority/allowance. Capacity, quota, rate-limit, transport, timeout or provider
+unavailable: checkpoint and pause. Identity/configuration failures also pause for correction. Resume only on the user's go, same
+pinned reviewer and round (`REVIEW_RESUME=1`), recorded in the receipt.
+Never switch automatically. Report review **unavailable** and hold the irreversible step;
+never silently use Fast Mode, skip, fabricate approval or reset rounds. The runbook covers
+ERROR/`.invalid` receipts and refreshing exact IDs against the live catalog before new decisions.
 
-### Rules
-
-- **One independent reviewer at a time.** Independence means a separate, fresh context
-  (a subagent, a second CLI, another model). A different model family helps but is not
-  required. Keep the same reviewer model across rounds and carry the findings ledger. The
-  reviewer may not launch its own subagents or reviewers.
-- **Round 1 is full.** The reviewer covers three angles in order: red team (strongest case
-  the draft is wrong), premise (right question, constraint, options), pre-mortem (it was
-  adopted and failed in 90 days: why). Then anything else serious.
-- **Round 2+ is delta only:** the revised decision, the findings ledger, the open findings.
-  Each prior finding gets RESOLVED / NOT RESOLVED; then any new problem the revision created.
-- **Severity:** BLOCKER (wrong, or seriously harmful and hard to undo), SERIOUS (material gap
-  that would change the plan), NIT (decline it). You may upgrade a severity; a downgrade is a
-  rebuttal and must be recorded as one.
-- **Budget: 3 rounds per decision, 5 only after recording a concrete serious risk** (large or
-  irreversible money, legal, security, data loss, public reputation). A ceiling, not a quota.
-- **Done means the reviewer accepted the CURRENT revision:** its last round on the current
-  text returned AGREE, or only NITs remain. If you change the decision after the reviewer's
-  last word, that change needs another round or is labelled **UNVERIFIED**.
-  **Running out of budget never means approval:** open BLOCKER/SERIOUS findings go to the user.
-- **Disclose the actual verdict.** Never report approval the reviewer didn't give, and never
-  hide a finding you rebutted that the reviewer still disputes.
-- **"Double check"** from the user adds one FULL three-angle round on the current decision by
-  a fresh reviewer (`REVIEW_SCOPE=full` with the script). A reviewer limited to the delta
-  could not challenge the original blind spots. Record it in the same receipt.
-
-### Run it
-
-1. Write the round-1 brief from `templates/review-brief.md`: framing, the named constraint,
-   options, decisions already settled, and your **draft recommendation** so the reviewer has
-   something to attack. Inline any artifact under review; the reviewer is a fresh context
-   and cannot see your files or conversation.
-2. Run one round with whatever independent reviewer your environment offers:
-   - **A subagent tool** (for example Claude Code's Agent/Task tool): spawn a fresh subagent
-     per round with the reviewer prompt from `scripts/review-round.sh` plus the brief.
-   - **The bundled script** (needs the `codex` or `claude` CLI):
-     ```
-     RUN=./review-runs/$(date +%F)-<topic>
-     bash <skill-dir>/scripts/review-round.sh brief.md "$RUN" 1 codex
-     ```
-     It writes `r1-brief.md`, `r1-review.md` and a line in `meta.txt` (reviewer, model,
-     status, verdict, seconds). The reply shape lives in the script.
-3. **Judge each finding** and append it to `$RUN/ledger.md`:
-   `F<n> | severity | finding | FIXED (the change) | REBUTTED (evidence) | DECLINED (nit)`.
-   Make the smallest justified change. Push back when a finding is wrong; don't expand scope.
-4. If any BLOCKER/SERIOUS is open, or you changed the decision, write the round-N brief:
-   frame and constraint in two lines, the revised decision, the ledger, the open findings.
-   Run the next round with the same reviewer. Repeat 3-4 until the reviewer accepts the
-   current revision or the budget is spent.
-5. **Write the receipt** into the decision record and to the user:
-   `Review: rounds N/3, reviewer <model>, final verdict <actual>, rebutted: F.., open: F..`.
-   Up to 3 open BLOCKER/SERIOUS findings, ranked, one-line consequence each, plus
-   "N more in ledger.md". Shorten what they read, never what you disclose.
-
-If a round fails (timeout, error, empty or malformed reply), retry once with the same
-reviewer at most. If it still fails, review is **unavailable**, not skipped: tell the user
-and hold the irreversible step until they decide. Never fall back to Fast Mode silently,
-reset the round count, or fabricate a review.
-
-## Output Contract (always end with this)
+## Output contract (end with this)
 
 - **DECISION:** clear statement
 - **CONFIDENCE:** High / Medium / Low
-- **RATIONALE:** why, referencing the loop; in Review Loop mode, name each finding you rebutted
-- **REVIEW:** the receipt line (Review Loop mode only)
-- **NEXT ACTION:** the specific first step
-- **REVIEW TRIGGER:** the condition or date that reopens this
-- **SUCCESS METRICS:** how you'll know it worked
+- **RATIONALE:** why; name rebutted findings
+- **REVIEW:** actual receipt, Review Loop only
+- **NEXT ACTION:** specific first step
+- **REVIEW TRIGGER:** condition/date reopening this
+- **SUCCESS METRICS:** how to know it worked
 
-## Common Pitfalls
+## Common pitfalls
 
-1. **Running the loop on a reversible call.** Run the reversibility test first.
-2. **No draft pick in the brief.** Without one the reviewer just restates the options. Include
-   your draft, the settled decisions (so it attacks the plan, not settled choices), and 3-4
-   pointed questions. If your draft departs from a settled decision, label it a departure the
-   user must approve.
-3. **Treating every finding as mandatory.** You judge. Fix the valid ones minimally, rebut the
-   wrong ones with evidence, decline nits. Rubber-stamping is as bad as ignoring.
-4. **Re-reviewing everything each round.** Later rounds are delta only, or the reviewer reopens
-   settled points and burns the budget.
-5. **Hiding the reviewer's dissatisfaction.** Report the actual last verdict.
-6. **Skipping memory.** Steps 3 and 7 exist so decisions compound.
-7. **Equating containment with a fix.** A cap or limit can turn a failure into a slowdown
-   without fixing it. Define pass criteria and test before rollout.
-8. **Fabricating a review on failure.** If the review file holds the ERROR sentinel, say so.
-9. **Anchoring on the last-mentioned option.** When asked to re-evaluate, compare the full
-   option set before designing inside one option.
-10. **Running a parallel panel by default.** Several simultaneous reviewers produce noise and
-    split the ledger. For more breadth, run a "double check" round with a fresh reviewer.
+1. Cheap reversible call: Fast Mode unless review requested.
+2. No draft: include draft, settled choices, approval-labelled departures and questions.
+3. Obeying all findings: judge, fix minimally, rebut with evidence, decline nits.
+4. Full review each round: delta except requested double check.
+5. Hidden dissatisfaction: disclose actual verdict and disputes.
+6. No memory: recall first; save decision, rationale and receipt.
+7. Containment mistaken for proof: before shared-resource/performance rollout, run the
+   bounded replay and operational pass criteria in `templates/reviewer-runbook.md`.
+8. Fabricated review: disclose ERROR and hold the irreversible step.
+9. Anchoring: compare all relevant options/formats before designing.
+10. Default panels: get breadth with a fresh full double check, same ledger.
 
-## Verification Checklist
+## Verification checklist
 
-- [ ] Ran the reversibility test and picked the right mode
-- [ ] Named and typed the ONE binding constraint (step 2)
-- [ ] Checked prior context before reasoning (step 3)
-- [ ] Review Loop: brief had framing, constraint, options, settled decisions, AND a draft pick
-- [ ] Review Loop: one independent reviewer, same model, fresh context each round
-- [ ] Review Loop: every finding in `ledger.md` as fixed / rebutted / declined
-- [ ] Review Loop: rounds 2+ were delta only; done = reviewer accepted the current revision
-- [ ] Review Loop: a failed review was reported as unavailable and the irreversible step held
-- [ ] Review Loop: receipt with the actual verdict and open findings given to the user
-- [ ] Output contract present and complete
-- [ ] Decision and rationale persisted (step 7)
+- [ ] Mode correct; ONE typed constraint; prior context/assumptions/options checked
+- [ ] Brief complete; model/options pinned; fresh contexts; identity/exceptions recorded
+- [ ] All findings judged; downgrades rebutted; disputes/open serious findings disclosed
+- [ ] Scope/risk/allowance/count correct; current text accepted or UNVERIFIED
+- [ ] Failure/retry/switch rules met; unavailable review holds irreversible step
+- [ ] Actual verdict/changes disclosed; output complete; decision/rationale/receipt saved

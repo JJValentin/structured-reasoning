@@ -18,3 +18,7 @@ Desktop.ini
 # Personal notes (if any)
 notes/
 scratch/
+
+# Python
+__pycache__/
+*.pyc
